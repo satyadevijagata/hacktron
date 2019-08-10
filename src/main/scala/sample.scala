@@ -43,8 +43,14 @@ object ProductAnalysis {
 
     distri_sales2.coalesce(1).write.csv("data/salesDistribution_cnt.txt")
     val distri_non_refund=Sales_df.join(Refund_df,Sales_df("1transaction_id") ===Refund_df("2original_transaction_id")
-      , "left").filter(year(to_date(Sales_df("4timestamp"))).geq(lit(2013)))
+      , "left").where(Refund_df("2original_transaction_id").isNull).select(Sales_df("4timestamp"),Sales_df("1transaction_id"))
+
+      //.filter(year(to_date(Sales_df("4timestamp")))===lit("2013"))
     distri_non_refund.show()
+    val df4=distri_non_refund.registerTempTable("tab1")
+    val df5= spark.sql("select count(1) from tab1 where 4timestamp like '%2013%'")
+    df5.coalesce(1).write.csv("data/total_amount_of_transactions_2013_cnt.txt")
+
 
 
 
