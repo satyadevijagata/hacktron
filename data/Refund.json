@@ -1,0 +1,1 @@
+{"1refund_id": "StringType","2original_transaction_id": "StringType","3customer_id": "StringType", "4timestamp": "TimeStamp", "5refund_amount": "DoubleType","6refund_quantity": "DoubleType"}

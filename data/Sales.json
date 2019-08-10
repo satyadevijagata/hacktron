@@ -1,0 +1,1 @@
+{"1transaction_id": "StringType","2customer_id": "StringType", "3product_id": "StringType", "4timestamp": "TimestampType","5total_amount": "DoubleType","6total_quantity":  "DoubleType"}
