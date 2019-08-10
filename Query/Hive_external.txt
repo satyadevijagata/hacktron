@@ -1,0 +1,75 @@
+
+create database dbs27;
+
+create table if not exists Product1(product_id int, product_name string, product_type string, product_version string, product_price string) row format delimited fields terminated by "|" lines terminated by "\n" stored as textFile;
+
+load data local inpath "file:///home/gopalkrishna/Desktop/DBS/Data/Product.txt" into table Product1;
+
+create external table if not exists Product(product_id int, product_name string, product_type string, product_version string, product_price string) row format delimited fields terminated by "|" lines terminated by "\n" stored as PARQUET LOCATION '/DBS/TABLE27/Product/';
+
+insert overwrite table Product select * from Product1;
+
+select * from product limit 5;
+
+
+
+create table if not exists Customer1(customer_id int, customer_first_name string, customer_last_name string, phone_number bigint) row format delimited fields terminated by "|" lines terminated by "\n" stored as textFile;
+
+load data local inpath "file:///home/gopalkrishna/Desktop/DBS/Data/Customer.txt" into table Customer1;
+
+create external table if not exists Customer(customer_id int, customer_first_name string, customer_last_name string, phone_number bigint) row format delimited fields terminated by "|" lines terminated by "\n" stored as PARQUET LOCATION '/DBS/TABLE27/Customer/';
+
+insert overwrite table Customer select * from Customer1;
+
+
+
+
+create table if not exists Sales1(transaction_id int, customer_id int, product_id int, dttimestamp string, total_amount string, total_quantity int) row format delimited fields terminated by "|" lines terminated by "\n" stored as textFile;
+
+load data local inpath "file:///home/gopalkrishna/Desktop/DBS/Data/Sales.txt" into table Sales1;
+
+create external table if not exists Sales(transaction_id int, customer_id int, product_id int, dttimestamp string, total_amount string, total_quantity int) row format delimited fields terminated by "|" lines terminated by "\n" stored as PARQUET LOCATION '/DBS/TABLE27/Sales/';
+
+insert overwrite table Sales select * from Sales1;
+
+
+
+
+create table if not exists Refund1(refund_id int, original_transaction_id int, customer_id int, product_id int, dttimestamp string, refund_amount string, refund_quantity int) row format delimited fields terminated by "|" lines terminated by "\n" stored as textFile;
+
+load data local inpath "file:///home/gopalkrishna/Desktop/DBS/Data/Refund.txt" into table Refund1;
+
+
+create external table if not exists Refund(refund_id int, original_transaction_id int, customer_id int, product_id int, dttimestamp string, refund_amount string, refund_quantity int) row format delimited fields terminated by "|" lines terminated by "\n" stored as PARQUET LOCATION '/DBS/TABLE27/Refund/';
+
+insert overwrite table Refund select * from Refund1;
+
+
+
+
+
+
+DELIVERABLES:
+1. TIMESTAMP IS a keyword and cannot be used as a column.
+
+2. select p.product_name,p.product_type,sum(cast(substr(s.total_amount,2,length(s.total_amount)) as int)) from Product p join Sales s on p.product_id=s.product_id group by p.product_name,p.product_type;
+
+
+3. select sum(cast(substr(s.total_amount,2,length(s.total_amount)) as int)) from Sales s join Refund r on s.transaction_id <> r.original_transaction_id where year(from_unixtime(unix_timestamp(dttimestamp,'MM/dd/yyyy hh:mm:ss'))) = '2013';
+
+4. select c.customer_name, dense_rank over (partition by c.customer_id order by s.total_amount) as rank from customer c join Sales s on c.customer_id = s.customer_id where year(from_unixtime(unix_timestamp(s.dttimestamp,"mm/dd/yyyy hh:mm:ss"))) = '2013' and month(from_unixtime(unix_timestamp(s.dttimestamp,"MM/dd/yyyy hh:mm:ss"))) = '05';
+
+5. select pr.product_id,pr.product_name from Product pr where pr.product_id not in (select p.product_id from Product p join Sales s on p.product_id =  s.product_id);
+
+
+
+spark-shell
+
+
+spark.sql("show databases");
+spark.sql("use dbs27");
+
+
+
+
+

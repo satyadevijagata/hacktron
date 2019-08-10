@@ -34,6 +34,8 @@ object ProductAnalysis {
     val Refund_df = BuildDataFrame("data/Refund.txt", "|",spark,"data/Refund.json")
     product_df.show()
     customer_df.show()
+    customer_df.registerTempTable("cutomer")
+    Sales_df.registerTempTable("Sales")
     Sales_df.show()
     Refund_df.show()
     val distri_sales=product_df.join(Sales_df,product_df("1Product_id") ===Sales_df("3product_id")
@@ -50,8 +52,8 @@ object ProductAnalysis {
     val df4=distri_non_refund.registerTempTable("tab1")
     val df5= spark.sql("select count(1) from tab1 where 4timestamp like '%2013%'")
     df5.coalesce(1).write.csv("data/total_amount_of_transactions_2013_cnt.txt")
-
-
+    val df6=spark.sql("select concat(Customer_first_name,Customer_last_name) as cust_name,count(1) as purchases from cutomer l1 join Sales l2 on(l1.Customer_id=l2.2customer_id) where year(cast(l2.4timestamp as date))=2013 and month(cast(l2.4timestamp as date))=5 group by concat(Customer_first_name,Customer_last_name) ")
+    df6.show()
 
 
     // df2.show()
